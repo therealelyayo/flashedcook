@@ -33,7 +33,6 @@ jobs:
           images: ${{ secrets.DOCKER_USERNAME }}/evilnovnc
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -57,7 +56,6 @@ jobs:
           images: ${{ secrets.DOCKER_USERNAME }}/evilnginx
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
