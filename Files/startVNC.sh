@@ -59,10 +59,13 @@ else
 fi
 
 # Build Chromium flags at runtime so USERAGENT and other envs can be used
-DEFAULT_CHROMIUM_FLAGS="--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --start-maximized --no-sandbox --password-store=basic --noerrdialogs --no-first-run"
+# Start with default flags as an array for safe handling
+CHROMIUM_ARGS=(--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --start-maximized --no-sandbox --password-store=basic --noerrdialogs --no-first-run)
 
-# Use array for proper argument handling
-read -ra CHROMIUM_ARGS <<< "${CHROMIUM_FLAGS:-$DEFAULT_CHROMIUM_FLAGS}"
+# If CHROMIUM_FLAGS env var is set, use it instead (split on spaces)
+if [ -n "${CHROMIUM_FLAGS}" ]; then
+  read -ra CHROMIUM_ARGS <<< "${CHROMIUM_FLAGS}"
+fi
 
 # Add USERAGENT at runtime if provided
 if [ -n "$USERAGENT" ]; then
