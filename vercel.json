@@ -9,10 +9,6 @@
       "dest": "/index.html"
     },
     {
-      "src": "/index.js",
-      "dest": "/index.js"
-    },
-    {
       "src": "/(.*)",
       "dest": "/$1"
     }
