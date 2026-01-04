@@ -46,13 +46,20 @@ For this application to work properly, consider these alternatives:
 If you still want to deploy the static files to Vercel:
 
 ```bash
-# Install Vercel CLI
+# Install Vercel CLI globally
 npm install -g vercel
 
-# Deploy
+# Login to Vercel
+vercel login
+
+# Deploy to preview
+npm run deploy:preview
+# OR
 vercel
 
-# Or link to a project
+# Deploy to production
+npm run deploy
+# OR
 vercel --prod
 ```
 
