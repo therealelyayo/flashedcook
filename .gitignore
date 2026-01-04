@@ -5,6 +5,11 @@ Files/.DS_Store
 # Vercel
 .vercel
 
+# Google Cloud
+.gcloud/
+.config/gcloud/
+*.log
+
 # Node
 node_modules/
 npm-debug.log*

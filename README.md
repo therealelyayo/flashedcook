@@ -14,7 +14,24 @@ In addition, this tool allows us to see in real time all of the victim's actions
 
 # Deployment
 
-## Docker Deployment (Recommended)
+## Google Cloud Platform (Recommended for Production) ⭐
+
+**Full functionality** with Docker support, automatic scaling, and enterprise features.
+
+### Quick Deploy to Google Compute Engine
+
+```bash
+# One-command deployment
+./deploy-gce.sh YOUR_PROJECT_ID https://your-target-url.com
+```
+
+See [GOOGLE_CLOUD_DEPLOYMENT.md](GOOGLE_CLOUD_DEPLOYMENT.md) for complete instructions including:
+- Google Compute Engine deployment (VM-based)
+- Google Kubernetes Engine deployment (container orchestration)
+- Cost estimation and optimization tips
+- Monitoring and troubleshooting
+
+## Local Docker Deployment
 
 This application is designed to run with Docker. Follow the installation and usage instructions below for full functionality.
 

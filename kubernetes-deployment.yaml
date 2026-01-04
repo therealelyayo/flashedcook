@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: evilnovnc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: downloads-pvc
+  namespace: evilnovnc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evilnginx
+  namespace: evilnovnc
+  labels:
+    app: evilnginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evilnginx
+  template:
+    metadata:
+      labels:
+        app: evilnginx
+    spec:
+      containers:
+      - name: evilnginx
+        image: gcr.io/YOUR_PROJECT_ID/evilnginx:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: MAX_RAM
+          value: "8192"  # 8GB RAM for container management
+        volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        - name: data-volume
+          mountPath: /data
+        - name: downloads-volume
+          mountPath: /app/Downloads
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+          type: Socket
+      - name: data-volume
+        configMap:
+          name: evilnovnc-config
+      - name: downloads-volume
+        persistentVolumeClaim:
+          claimName: downloads-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evilnovnc-service
+  namespace: evilnovnc
+spec:
+  type: LoadBalancer
+  selector:
+    app: evilnginx
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    name: http
+  - protocol: TCP
+    port: 443
+    targetPort: 443
+    name: https
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evilnovnc-config
+  namespace: evilnovnc
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+        
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+        
+        location /reso {
+            proxy_pass http://localhost:8080;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+            proxy_set_header Host $host;
+        }
+    }
+
+---
+# Optional: Managed Certificate for SSL (requires a domain)
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: evilnovnc-cert
+  namespace: evilnovnc
+spec:
+  domains:
+    - your-domain.com  # Replace with your domain
+
+---
+# Optional: Ingress for HTTPS with managed certificate
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: evilnovnc-ingress
+  namespace: evilnovnc
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/managed-certificates: "evilnovnc-cert"
+    kubernetes.io/ingress.global-static-ip-name: "evilnovnc-ip"
+spec:
+  rules:
+  - host: your-domain.com  # Replace with your domain
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: evilnovnc-service
+            port:
+              number: 80
