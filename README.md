@@ -17,6 +17,10 @@ In addition, this tool allows us to see in real time all of the victim's actions
 It's recommended to clone the complete repository or download the zip file.
 Additionally, it's necessary to build Docker manually. You can do this by running the following commands:
 
+## Docker Hub (Pre-built Images)
+
+Pre-built Docker images are automatically published to Docker Hub. For automated deployment setup, see [DOCKER_HUB_DEPLOYMENT.md](DOCKER_HUB_DEPLOYMENT.md).
+
 ## Auto
 
 ```bash
