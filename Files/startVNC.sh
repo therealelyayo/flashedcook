@@ -60,12 +60,13 @@ fi
 
 # Build Chromium flags at runtime so USERAGENT and other envs can be used
 DEFAULT_CHROMIUM_FLAGS="--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --start-maximized --no-sandbox --password-store=basic --noerrdialogs --no-first-run"
-CHROMIUM_FLAGS="${CHROMIUM_FLAGS:-$DEFAULT_CHROMIUM_FLAGS}"
+
+# Use array for proper argument handling
+read -ra CHROMIUM_ARGS <<< "${CHROMIUM_FLAGS:-$DEFAULT_CHROMIUM_FLAGS}"
 
 # Add USERAGENT at runtime if provided
 if [ -n "$USERAGENT" ]; then
-  # No extra quoting here so the final args are tokenized properly
-  CHROMIUM_FLAGS="$CHROMIUM_FLAGS --user-agent=$USERAGENT"
+  CHROMIUM_ARGS+=("--user-agent=$USERAGENT")
   echo "Using USERAGENT: $USERAGENT"
 fi
 
@@ -75,7 +76,7 @@ START_URL="${START_URL:-http://localhost:5980/vnc.html}"
 # Start Chromium
 if command -v chromium >/dev/null 2>&1; then
   echo "Launching Chromium: $START_URL"
-  chromium $CHROMIUM_FLAGS "$START_URL" &>/dev/null &
+  chromium "${CHROMIUM_ARGS[@]}" "$START_URL" &>/dev/null &
 else
   echo "Chromium not found; skipping browser launch"
 fi
