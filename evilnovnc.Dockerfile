@@ -2,15 +2,18 @@ FROM alpine:3.18
  LABEL maintainer="JoelGMSec - https://darkbyte.net"
 
 ENV DISPLAY :0
-ENV RESOLUTION 1920x1080x24
+# If you want to force a specific Xvfb size at container start, set RESOLUTION as e.g. "1366x768x24" via -e RESOLUTION=1366x768x24
+# Leaving RESOLUTION empty makes the container attempt to use the host/browser window (see startVNC.sh notes below)
+ENV RESOLUTION ""
 ENV FOLDER default
 ENV LANG es-ES.UTF-8
-ENV USERAGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+# updated to a current/latest-Style User-Agent (change at runtime with -e USERAGENT="..." to override)
+ENV USERAGENT "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 RUN apk add sudo bash xfce4 xvfb xdpyinfo lightdm-gtk-greeter x11vnc xfce4-terminal chromium python3 py3-pip git openssl curl wget gcc libc-dev python3-dev python3-tkinter py3-pycryptodome py3-xlib && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install pyxhook && \
-    echo 'CHROMIUM_FLAGS="--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --kiosk --no-sandbox --password-store=basic --start-fullscreen --noerrdialogs --no-first-run"' >> /etc/chromium/chromium.conf && \
+    echo 'CHROMIUM_FLAGS="--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --start-maximized --no-sandbox --password-store=basic --noerrdialogs --no-first-run"' >> /etc/chromium/chromium.conf && \
     dbus-uuidgen > /var/lib/dbus/machine-id
 
 RUN adduser -h /home/user -s /bin/bash -S -D user && echo "user:false" | chpasswd && \
