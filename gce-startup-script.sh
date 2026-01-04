@@ -30,7 +30,7 @@ fi
 if ! command -v git &> /dev/null; then
     echo "Installing Git..."
     apt-get update
-    apt-get install -y git
+    apt-get install -y git=1:2.* || apt-get install -y git  # Try to install specific version, fallback to latest
     echo "Git installed successfully"
 else
     echo "Git is already installed"

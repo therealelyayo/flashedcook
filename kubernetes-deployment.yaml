@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: evilnginx
-        image: gcr.io/YOUR_PROJECT_ID/evilnginx:latest
+        image: gcr.io/${PROJECT_ID}/evilnginx:latest  # Replace ${PROJECT_ID} with your GCP project ID
         ports:
         - containerPort: 80
         env:
@@ -123,7 +123,7 @@ metadata:
   namespace: evilnovnc
 spec:
   domains:
-    - your-domain.com  # Replace with your domain
+    - ${DOMAIN}  # Replace ${DOMAIN} with your domain (e.g., example.com)
 
 ---
 # Optional: Ingress for HTTPS with managed certificate
@@ -138,7 +138,7 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: "evilnovnc-ip"
 spec:
   rules:
-  - host: your-domain.com  # Replace with your domain
+  - host: ${DOMAIN}  # Replace ${DOMAIN} with your domain (e.g., example.com)
     http:
       paths:
       - path: /*
