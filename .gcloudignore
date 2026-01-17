@@ -1,0 +1,34 @@
+# Git and version control
+.git
+.github
+.gitignore
+
+# Vercel files (not needed for GCP)
+.vercel
+.vercelignore
+vercel.json
+
+# Node/NPM (if not using Node.js deployment)
+node_modules/
+package.json
+package-lock.json
+npm-debug.log*
+
+# Documentation (optional, but can be included)
+*.md
+
+# Local development
+.DS_Store
+Downloads/*
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+tmp/
+temp/

